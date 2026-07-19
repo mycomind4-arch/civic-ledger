@@ -12,16 +12,67 @@ on:
       - "apps/**"
       - "packages/**"
       - "services/**"
+      - "infra/**"
       - "test/**"
       - ".github/workflows/bootstrap.yml"
-
-permissions:
-  contents: read
+  push:
+    branches: [agent/bootstrap-civic-ledger]
+    paths:
+      - "packages/database/package.json"
+      - ".github/workflows/bootstrap.yml"
 
 jobs:
-  validate:
+  commit-lockfile:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/bootstrap-civic-ledger
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.11.0 --activate
+      - name: Generate lockfile
+        run: pnpm install --lockfile-only --no-frozen-lockfile
+      - name: Commit lockfile when changed
+        run: |
+          if [ -n "$(git status --porcelain -- pnpm-lock.yaml)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add pnpm-lock.yaml
+            git commit -m "chore: update pnpm lockfile for database"
+            git push origin HEAD:agent/bootstrap-civic-ledger
+          fi
+
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: civicledger
+          POSTGRES_PASSWORD: civicledger
+          POSTGRES_DB: civicledger
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U civicledger -d civicledger"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://civicledger:civicledger@localhost:5432/civicledger
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,9 +84,15 @@ jobs:
           corepack prepare pnpm@11.11.0 --activate
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Migrate up
+        run: pnpm migrate
       - name: Test
         run: pnpm test
       - name: Typecheck
         run: pnpm typecheck
       - name: Build
         run: pnpm build
+      - name: Migrate down and up
+        run: |
+          pnpm migrate:down
+          pnpm migrate

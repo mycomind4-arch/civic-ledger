@@ -11,5 +11,12 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "migrate": "tsx src/migrate.ts up",
     "migrate:down": "tsx src/migrate.ts down"
+  },
+  "dependencies": {
+    "@civic-ledger/domain": "workspace:*",
+    "pg": "8.16.3"
+  },
+  "devDependencies": {
+    "@types/pg": "8.15.0"
   }
 }
