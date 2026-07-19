@@ -31,17 +31,26 @@ jobs:
           corepack enable
           corepack prepare pnpm@11.11.0 --activate
       - name: Generate lockfile
-        run: pnpm install --lockfile-only --no-frozen-lockfile
+        id: lockfile
+        continue-on-error: true
+        run: pnpm install --lockfile-only --no-frozen-lockfile 2>&1 | tee pnpm-install.log
       - name: Install and validate
+        if: steps.lockfile.outcome == 'success'
         run: |
           pnpm install --no-frozen-lockfile
           pnpm test
           pnpm typecheck
           pnpm build
-      - name: Upload generated lockfile
+      - name: Upload bootstrap diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pnpm-lock
-          path: pnpm-lock.yaml
-          if-no-files-found: error
+          name: bootstrap-diagnostics
+          path: |
+            pnpm-install.log
+            pnpm-lock.yaml
+          if-no-files-found: warn
           retention-days: 1
+      - name: Fail when lockfile generation failed
+        if: steps.lockfile.outcome != 'success'
+        run: exit 1
