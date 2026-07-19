@@ -25,6 +25,12 @@ export function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+function compareStrings(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
 function assertLocation(location: EvidenceLocation | undefined): asserts location is EvidenceLocation {
   if (!location) {
     throw new Error("Evidence location is required");
@@ -72,7 +78,7 @@ function canonicalize(value: unknown): unknown {
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
       Object.entries(value)
-        .sort(([left], [right]) => left.localeCompare(right))
+        .sort(([left], [right]) => compareStrings(left, right))
         .map(([key, nested]) => [key, canonicalize(nested)])
     );
   }
@@ -97,7 +103,7 @@ export function buildEvidenceManifest(input: readonly EvidenceItem[]): EvidenceM
   }
 
   const items = Object.freeze(
-    [...byId.values()].sort((left, right) => left.id.localeCompare(right))
+    [...byId.values()].sort((left, right) => compareStrings(left.id, right.id))
   );
   const manifest = {
     schemaVersion: "civic-ledger.evidence-manifest.v1" as const,
