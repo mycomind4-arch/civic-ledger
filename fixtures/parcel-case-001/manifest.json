@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "civic-ledger.fixture-manifest.v1",
+  "fixtureId": "parcel-case-001",
+  "synthetic": true,
+  "agency": "Exampleville Civic Records Office",
+  "expectedCategories": [
+    "notice",
+    "hearing",
+    "enforcement_action",
+    "recorded_instrument"
+  ],
+  "documents": [
+    {
+      "path": "notice.txt",
+      "category": "notice",
+      "mediaType": "text/plain",
+      "occurredAt": "2026-01-05T17:00:00.000Z"
+    },
+    {
+      "path": "hearing.txt",
+      "category": "hearing",
+      "mediaType": "text/plain",
+      "occurredAt": "2026-01-20T18:00:00.000Z"
+    },
+    {
+      "path": "enforcement-action.txt",
+      "category": "enforcement_action",
+      "mediaType": "text/plain",
+      "occurredAt": "2026-02-02T19:00:00.000Z"
+    }
+  ]
+}
