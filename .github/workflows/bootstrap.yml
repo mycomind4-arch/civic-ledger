@@ -55,27 +55,10 @@ jobs:
       - name: Test
         run: pnpm test
       - name: Typecheck
-        id: typecheck
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          pnpm typecheck 2>&1 | tee typecheck.log
-      - name: Upload typecheck diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: task-8-typecheck-diagnostics
-          path: typecheck.log
-          if-no-files-found: error
-          retention-days: 1
-      - name: Fail when typecheck failed
-        if: ${{ steps.typecheck.outcome == 'failure' }}
-        run: exit 1
+        run: pnpm typecheck
       - name: Build
-        if: ${{ steps.typecheck.outcome == 'success' }}
         run: pnpm build
       - name: Migrate down and up
-        if: ${{ steps.typecheck.outcome == 'success' }}
         run: |
           pnpm migrate:down
           pnpm migrate

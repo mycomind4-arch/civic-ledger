@@ -66,13 +66,13 @@ export function evaluateRule(rule: PolicyRule, facts: PolicyFacts): PolicyEvalua
 const LIMITATION =
   "This synthetic rule evaluates only the observed ordering and review state of source-backed fixture events. It is not a legal conclusion and does not determine whether notice was legally sufficient.";
 
-export const noticeBeforeHearingRule: PolicyRule = Object.freeze({
+const noticeBeforeHearingRuleDefinition: PolicyRule = {
   id: "synthetic.notice-before-hearing.v1",
   version: "1.0.0",
   description: "Checks whether an approved synthetic notice event predates an approved synthetic hearing event.",
   limitation: LIMITATION,
   consequential: true,
-  evaluate(facts) {
+  evaluate(facts: PolicyFacts) {
     const notices = facts.events
       .filter((event) => event.eventType === "notice")
       .sort((left, right) => compareStrings(left.occurredAt, right.occurredAt));
@@ -136,4 +136,8 @@ export const noticeBeforeHearingRule: PolicyRule = Object.freeze({
       inputFacts
     };
   }
-});
+};
+
+export const noticeBeforeHearingRule: PolicyRule = Object.freeze(
+  noticeBeforeHearingRuleDefinition
+);
