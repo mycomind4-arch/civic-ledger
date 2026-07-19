@@ -1,6 +1,6 @@
-import { Pool } from "pg";
+import * as pg from "pg";
 
-export type DatabasePool = Pool;
+export type DatabasePool = InstanceType<typeof pg.Pool>;
 
 export function createDatabasePool(
   connectionString = process.env.DATABASE_URL
@@ -9,7 +9,7 @@ export function createDatabasePool(
     throw new Error("DATABASE_URL is required");
   }
 
-  return new Pool({
+  return new pg.Pool({
     connectionString,
     max: 5,
     idleTimeoutMillis: 10_000,

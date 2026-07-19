@@ -6,7 +6,8 @@ import {
   type OrganizationId,
   type ParcelId
 } from "@civic-ledger/domain";
-import type { Pool, QueryResultRow } from "pg";
+import type { QueryResultRow } from "pg";
+import type { DatabasePool } from "./pool.js";
 
 interface CaseRow extends QueryResultRow {
   id: string;
@@ -77,7 +78,7 @@ export interface AuditRepository {
 }
 
 export interface Database {
-  pool: Pool;
+  pool: DatabasePool;
   cases: CaseRepository;
   observations: ObservationRepository;
   evidence: EvidenceRepository;
@@ -88,7 +89,7 @@ export interface Database {
 }
 
 async function tenantRow(
-  pool: Pool,
+  pool: DatabasePool,
   sql: string,
   organizationId: string,
   id: string
@@ -97,7 +98,7 @@ async function tenantRow(
   return result.rows[0] ?? null;
 }
 
-export function createRepositories(pool: Pool): Database {
+export function createRepositories(pool: DatabasePool): Database {
   const cases: CaseRepository = {
     async create(input) {
       const result = await pool.query<{ id: string } & QueryResultRow>(
@@ -105,13 +106,7 @@ export function createRepositories(pool: Pool): Database {
           organization_id, parcel_id, title, status, created_by, correlation_id
         ) VALUES ($1, $2, $3, 'open', $4, $5)
         RETURNING id`,
-        [
-          input.organizationId,
-          input.parcelId,
-          input.title,
-          input.actorId,
-          input.correlationId
-        ]
+        [input.organizationId, input.parcelId, input.title, input.actorId, input.correlationId]
       );
       const id = result.rows[0]?.id;
       if (!id) throw new Error("Case insert did not return an ID");

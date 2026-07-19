@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
-import type { Pool } from "pg";
-import { createDatabasePool } from "./pool.js";
+import { createDatabasePool, type DatabasePool } from "./pool.js";
 
 export type MigrationDirection = "up" | "down";
 
@@ -14,7 +13,7 @@ function migrationUrl(direction: MigrationDirection): URL {
 
 export async function migrate(
   direction: MigrationDirection,
-  suppliedPool?: Pool
+  suppliedPool?: DatabasePool
 ): Promise<void> {
   const pool = suppliedPool ?? createDatabasePool();
   const ownsPool = suppliedPool === undefined;
