@@ -35,12 +35,17 @@ jobs:
         continue-on-error: true
         run: pnpm install --lockfile-only --no-frozen-lockfile 2>&1 | tee pnpm-install.log
       - name: Install and validate
+        id: validation
         if: steps.lockfile.outcome == 'success'
+        continue-on-error: true
         run: |
-          pnpm install --no-frozen-lockfile
-          pnpm test
-          pnpm typecheck
-          pnpm build
+          set -o pipefail
+          {
+            pnpm install --no-frozen-lockfile
+            pnpm test
+            pnpm typecheck
+            pnpm build
+          } 2>&1 | tee validation.log
       - name: Upload bootstrap diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,9 +53,10 @@ jobs:
           name: bootstrap-diagnostics
           path: |
             pnpm-install.log
+            validation.log
             pnpm-lock.yaml
           if-no-files-found: warn
           retention-days: 1
-      - name: Fail when lockfile generation failed
-        if: steps.lockfile.outcome != 'success'
+      - name: Fail on bootstrap errors
+        if: steps.lockfile.outcome != 'success' || steps.validation.outcome == 'failure'
         run: exit 1
