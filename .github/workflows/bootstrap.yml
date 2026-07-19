@@ -13,14 +13,48 @@ on:
       - "services/**"
       - "test/**"
       - ".github/workflows/bootstrap.yml"
-
-permissions:
-  contents: read
+  push:
+    branches: [agent/bootstrap-civic-ledger]
+    paths:
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/bootstrap.yml"
 
 jobs:
+  commit-lockfile:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/bootstrap-civic-ledger
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.11.0 --activate
+      - name: Generate lockfile
+        run: pnpm install --lockfile-only --no-frozen-lockfile
+      - name: Commit lockfile when changed
+        run: |
+          if [ -n "$(git status --porcelain -- pnpm-lock.yaml)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add pnpm-lock.yaml
+            git commit -m "chore: add pnpm lockfile"
+            git push origin HEAD:agent/bootstrap-civic-ledger
+          fi
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,32 +65,10 @@ jobs:
           corepack enable
           corepack prepare pnpm@11.11.0 --activate
       - name: Generate lockfile
-        id: lockfile
-        continue-on-error: true
-        run: pnpm install --lockfile-only --no-frozen-lockfile 2>&1 | tee pnpm-install.log
+        run: pnpm install --lockfile-only --no-frozen-lockfile
       - name: Install and validate
-        id: validation
-        if: steps.lockfile.outcome == 'success'
-        continue-on-error: true
         run: |
-          set -o pipefail
-          {
-            pnpm install --no-frozen-lockfile
-            pnpm test
-            pnpm typecheck
-            pnpm build
-          } 2>&1 | tee validation.log
-      - name: Upload bootstrap diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bootstrap-diagnostics
-          path: |
-            pnpm-install.log
-            validation.log
-            pnpm-lock.yaml
-          if-no-files-found: warn
-          retention-days: 1
-      - name: Fail on bootstrap errors
-        if: steps.lockfile.outcome != 'success' || steps.validation.outcome == 'failure'
-        run: exit 1
+          pnpm install --no-frozen-lockfile
+          pnpm test
+          pnpm typecheck
+          pnpm build
