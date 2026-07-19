@@ -1,0 +1,26 @@
+{
+  "name": "civic-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.11.0",
+  "engines": {
+    "node": "22.22.3"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm -r --parallel --if-present dev",
+    "lint": "pnpm -r --if-present lint",
+    "test": "vitest run --maxWorkers=1 --no-file-parallelism",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "migrate": "pnpm --filter @civic-ledger/database migrate",
+    "migrate:down": "pnpm --filter @civic-ledger/database migrate:down",
+    "audit:dependencies": "pnpm audit --prod --audit-level high"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.0",
+    "tsx": "4.20.0",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

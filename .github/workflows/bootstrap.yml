@@ -1,0 +1,64 @@
+name: Bootstrap workspace
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "tsconfig.base.json"
+      - "vitest.config.ts"
+      - "apps/**"
+      - "packages/**"
+      - "services/**"
+      - "infra/**"
+      - "test/**"
+      - ".github/workflows/bootstrap.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: civicledger
+          POSTGRES_PASSWORD: civicledger
+          POSTGRES_DB: civicledger
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U civicledger -d civicledger"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://civicledger:civicledger@localhost:5432/civicledger
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.11.0 --activate
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Migrate up
+        run: pnpm migrate
+      - name: Test
+        run: pnpm test
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Build
+        run: pnpm build
+      - name: Migrate down and up
+        run: |
+          pnpm migrate:down
+          pnpm migrate
