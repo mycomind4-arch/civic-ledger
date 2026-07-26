@@ -1,14 +1,34 @@
 # CivicLedger
 
-CivicLedger is a source-backed civic records, parcel, and procedural-integrity platform.
+CivicLedger is a shared contracts and coordination layer for the Humboldt civic-tech ecosystem.
 
-Its first complete workflow is:
+It provides the type definitions, API contracts, and integration patterns that connect the independent civic products into a coherent system through [CivicLedger Hub](https://github.com/mycomind4-arch/civic-ledger-hub).
 
-> Search a parcel, preserve the known public records, construct an evidence-linked event timeline, identify missing or inconsistent procedural steps, require human review for consequential findings, and generate a versioned evidence report.
+## Design decision
 
-## Current status
+CivicLedger was originally planned as a monolithic consolidation of multiple civic repos. After review, we determined that the individual products work well independently and CivicLedger Hub already provides the unified user surface. Consolidation would be high-effort with diminishing returns.
 
-This repository is in architecture and implementation-planning stage. Existing civic repositories remain intact and authoritative during migration.
+**Instead, CivicLedger serves as:**
+
+- A shared type library (case models, evidence types, records schemas)
+- A contracts reference for inter-product API communication
+- A coordination document for the ecosystem architecture
+- A provenance and governance reference
+
+## Products in the ecosystem
+
+| Repository | Role | Status |
+| --- | --- | --- |
+| [AccessForge](https://github.com/mycomind4-arch/AccessForge) | Document accessibility auditing and remediation | Most mature (v1.34.0, 1410 tests, MIT) |
+| [FairProcess](https://github.com/mycomind4-arch/FairProcess) | Procedural integrity for code enforcement | Well-architected, needs pilot partner |
+| [permitsignal](https://github.com/mycomind4-arch/permitsignal) | Permit and bid intelligence | Revenue-first foundation, functional |
+| [humboldt-records-watch](https://github.com/mycomind4-arch/humboldt-records-watch) | Public records acquisition and change detection | Early stage |
+| [redact-desk](https://github.com/mycomind4-arch/redact-desk) | Review-gated document redaction | Functional, needs auth hardening |
+| [ParcelProof](https://github.com/mycomind4-arch/ParcelProof) | Parcel due-diligence workspace | Functional, browser-based |
+| [TrustTrace](https://github.com/mycomind4-arch/TrustTrace) | Evidence-backed scam investigation | Functional |
+| [mailmypdf](https://github.com/mycomind4-arch/mailmypdf) | Document-to-physical-mail service | Actively developed |
+| [code-sale-finder](https://github.com/mycomind4-arch/code-sale-finder) | Code-enforcement property sale tracker | Functional |
+| [civic-ledger-hub](https://github.com/mycomind4-arch/civic-ledger-hub) | Unified web portal connecting all products | Early stage, routes scaffolded |
 
 ## Product principles
 
@@ -19,21 +39,11 @@ This repository is in architecture and implementation-planning stage. Existing c
 - CivicLedger is an independent initiative and does not claim government endorsement.
 - The product does not make automated legal determinations.
 
-## Source systems
+## Revenue priorities
 
-CivicLedger will selectively adapt validated contracts and behavior from:
-
-- `humboldt-records-watch`
-- `FairProcess`
-- `permitsignal`
-- `ParcelProof`
-- `code-sale-finder`
-- `redact-desk`
-- `AccessForge`
-- `mailmypdf`
-- `humboldt-digital-commons`
-
-Source repositories will not be retired until replacement behavior, tests, provenance, exports, and operational documentation have been validated here.
+1. **AccessForge** — WCAG compliance is legally required for government and education. Closest to revenue.
+2. **PermitSignal** — Contractors pay for structured permit/bid alerts. Revenue-first design.
+3. **FairProcess** — Civic moonshot. Needs a pilot partner to move forward.
 
 ## License
 
