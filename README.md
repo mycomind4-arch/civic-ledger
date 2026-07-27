@@ -21,6 +21,7 @@ CivicLedger was originally planned as a monolithic consolidation of multiple civ
 | --- | --- | --- |
 | [AccessForge](https://github.com/mycomind4-arch/AccessForge) | Document accessibility auditing and remediation | Most mature (v1.34.0, 1410 tests, MIT) |
 | [FairProcess](https://github.com/mycomind4-arch/FairProcess) | Procedural integrity for code enforcement | Well-architected, needs pilot partner |
+| [ruth-solv-flow](https://github.com/mycomind4-arch/ruth-solv-flow) | Civic problem-solving and execution tracking | Functional prototype, integrating with FairProcess |
 | [permitsignal](https://github.com/mycomind4-arch/permitsignal) | Permit and bid intelligence | Revenue-first foundation, functional |
 | [humboldt-records-watch](https://github.com/mycomind4-arch/humboldt-records-watch) | Public records acquisition and change detection | Early stage |
 | [redact-desk](https://github.com/mycomind4-arch/redact-desk) | Review-gated document redaction | Functional, needs auth hardening |
@@ -44,6 +45,29 @@ CivicLedger was originally planned as a monolithic consolidation of multiple civ
 1. **AccessForge** — WCAG compliance is legally required for government and education. Closest to revenue.
 2. **PermitSignal** — Contractors pay for structured permit/bid alerts. Revenue-first design.
 3. **FairProcess** — Civic moonshot. Needs a pilot partner to move forward.
+
+## Integration contracts
+
+### FairProcess → Ruthless Problem Solver
+
+[`contracts/fairprocess-ruth.ts`](contracts/fairprocess-ruth.ts) defines the
+shared types and transformation function for converting FairProcess integrity
+report findings into Ruth problem solver inputs.
+
+**Flow:**
+
+1. FairProcess audits a code-enforcement case and generates an `IntegrityReport`
+2. The `fairProcessReportToCivicProblem()` function transforms findings into a
+   `CivicProblemInput` with evidence-linked root causes
+3. Ruth ingests the problem and generates solutions, execution plans, and monitoring
+4. Each root cause carries a `CivicEvidenceLink` back to the FairProcess source document
+
+**Principles enforced by the contract:**
+
+- Every root cause links to FairProcess evidence (document hash + page reference)
+- "Not located" findings are process gaps, not proof of misconduct
+- Human approval required before consequential automation
+- Priority and impact scores derive from finding severity, not AI guessing
 
 ## License
 
