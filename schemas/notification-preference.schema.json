@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.humboldt-digital-commons.invalid/notification-preference.schema.json",
+  "title": "Notification Preference",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subjectId",
+    "organizationId",
+    "channels",
+    "topics",
+    "updatedAt"
+  ],
+  "properties": {
+    "subjectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "channels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "email",
+        "sms",
+        "push",
+        "web"
+      ],
+      "properties": {
+        "email": {
+          "type": "boolean"
+        },
+        "sms": {
+          "type": "boolean"
+        },
+        "push": {
+          "type": "boolean"
+        },
+        "web": {
+          "type": "boolean"
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "quietHours": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timezone",
+        "start",
+        "end"
+      ],
+      "properties": {
+        "timezone": {
+          "type": "string"
+        },
+        "start": {
+          "type": "string",
+          "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+        }
+      }
+    },
+    "consentedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

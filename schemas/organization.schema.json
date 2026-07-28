@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.humboldt-digital-commons.invalid/organization.schema.json",
+  "title": "Organization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "organizationType",
+    "status",
+    "createdAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "organizationType": {
+      "enum": [
+        "county",
+        "city",
+        "tribal_organization",
+        "special_district",
+        "school",
+        "nonprofit",
+        "business",
+        "other"
+      ]
+    },
+    "jurisdiction": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "active",
+        "suspended",
+        "closed"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "externalReferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "system",
+          "id"
+        ],
+        "properties": {
+          "system": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

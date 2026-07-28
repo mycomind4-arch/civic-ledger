@@ -1,0 +1,39 @@
+{
+  "name": "@humboldt/civic-ledger",
+  "version": "0.1.0",
+  "description": "Shared contracts, types, and JSON schemas for the Humboldt civic-tech ecosystem",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./contracts/fairprocess-ruth": {
+      "types": "./dist/contracts/fairprocess-ruth.d.ts",
+      "import": "./dist/contracts/fairprocess-ruth.js"
+    },
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "dist",
+    "schemas"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -b tsconfig.json --force",
+    "test": "pnpm build && node --test test/**/*.test.mjs",
+    "prepublishOnly": "pnpm build && pnpm test"
+  },
+  "keywords": [
+    "civic-tech",
+    "humboldt",
+    "contracts",
+    "schemas",
+    "audit"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

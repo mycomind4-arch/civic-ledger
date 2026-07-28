@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.humboldt-digital-commons.invalid/document-reference.schema.json",
+  "title": "Document Reference",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "organizationId",
+    "sourceSystem",
+    "sourceId",
+    "fileName",
+    "mediaType",
+    "sha256",
+    "releaseState",
+    "createdAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sourceSystem": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fileName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mediaType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$"
+    },
+    "retentionClass": {
+      "type": "string"
+    },
+    "legalHold": {
+      "type": "boolean",
+      "default": false
+    },
+    "releaseState": {
+      "enum": [
+        "internal",
+        "review",
+        "approved",
+        "released",
+        "withheld"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

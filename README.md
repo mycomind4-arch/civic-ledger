@@ -1,19 +1,69 @@
 # CivicLedger
 
-CivicLedger is a shared contracts and coordination layer for the Humboldt civic-tech ecosystem.
+Shared contracts, types, and JSON schemas for the Humboldt civic-tech ecosystem.
 
-It provides the type definitions, API contracts, and integration patterns that connect the independent civic products into a coherent system through [CivicLedger Hub](https://github.com/mycomind4-arch/civic-ledger-hub).
+CivicLedger provides the type definitions, API contracts, and integration patterns that connect the independent civic products into a coherent system through [CivicLedger Hub](https://github.com/mycomind4-arch/civic-ledger-hub).
 
-## Design decision
+## Package
 
-CivicLedger was originally planned as a monolithic consolidation of multiple civic repos. After review, we determined that the individual products work well independently and CivicLedger Hub already provides the unified user surface. Consolidation would be high-effort with diminishing returns.
+```bash
+npm install @humboldt/civic-ledger
+```
 
-**Instead, CivicLedger serves as:**
+```typescript
+import { type AuditEvent, type Organization, type ParcelReference, schemas } from "@humboldt/civic-ledger";
 
-- A shared type library (case models, evidence types, records schemas)
-- A contracts reference for inter-product API communication
-- A coordination document for the ecosystem architecture
-- A provenance and governance reference
+// Use types for compile-time safety
+const event: AuditEvent = {
+  id: crypto.randomUUID(),
+  occurredAt: new Date().toISOString(),
+  organizationId: orgId,
+  actor: { type: "service", id: "fairprocess-api" },
+  action: "report.generated",
+  resource: { type: "report", id: reportId },
+  outcome: "succeeded",
+  source: "fairprocess",
+};
+
+// Use schemas for runtime validation
+import { schemas } from "@humboldt/civic-ledger";
+// Pass to any JSON Schema 2020-12 validator (ajv, @hyperjump/json-schema, etc.)
+```
+
+## What's included
+
+| Export | Description |
+| --- | --- |
+| `AuditEvent`, `AuditActor`, `AuditResource`, `AuditOutcome` | Audit trail event for every consequential action |
+| `DocumentReference` | Document with SHA-256 hash, release state, and retention metadata |
+| `NotificationPreference` | Per-subject notification channels, topics, and quiet hours |
+| `Organization` | Participating organization (county, city, tribal, nonprofit, business, etc.) |
+| `ParcelReference` | Assessor parcel with canonical ID and optional GeoJSON centroid |
+| `schemas` | All 5 JSON Schema files (draft 2020-12) for runtime validation |
+| `schemaIds` | Canonical `$id` URIs for each schema |
+| `CIVIC_LEDGER_VERSION` | Current package version string |
+| `fairProcessReportToCivicProblem` | Integration contract: FairProcess → Ruth Problem Solver |
+
+## Schemas
+
+All schemas are JSON Schema draft 2020-12, located in [`schemas/`](schemas/):
+
+| Schema | $id | Required fields |
+| --- | --- | --- |
+| [audit-event](schemas/audit-event.schema.json) | `…/audit-event.schema.json` | id, occurredAt, organizationId, actor, action, resource, outcome, source |
+| [document-reference](schemas/document-reference.schema.json) | `…/document-reference.schema.json` | id, organizationId, sourceSystem, sourceId, fileName, mediaType, sha256, releaseState, createdAt |
+| [notification-preference](schemas/notification-preference.schema.json) | `…/notification-preference.schema.json` | subjectId, organizationId, channels, topics, updatedAt |
+| [organization](schemas/organization.schema.json) | `…/organization.schema.json` | id, name, organizationType, status, createdAt |
+| [parcel-reference](schemas/parcel-reference.schema.json) | `…/parcel-reference.schema.json` | jurisdiction, apn, canonicalId, sourceSystem, observedAt |
+
+## Design Principles
+
+- Every factual report assertion must link to evidence.
+- Source observations and released report versions are immutable.
+- Absence of evidence is not presented as evidence that an event did not occur.
+- Consequential findings require human approval.
+- CivicLedger is an independent initiative and does not claim government endorsement.
+- The product does not make automated legal determinations.
 
 ## Products in the ecosystem
 
@@ -31,44 +81,20 @@ CivicLedger was originally planned as a monolithic consolidation of multiple civ
 | [code-sale-finder](https://github.com/mycomind4-arch/code-sale-finder) | Code-enforcement property sale tracker | Functional |
 | [civic-ledger-hub](https://github.com/mycomind4-arch/civic-ledger-hub) | Unified web portal connecting all products | Early stage, routes scaffolded |
 
-## Product principles
-
-- Every factual report assertion must link to evidence.
-- Source observations and released report versions are immutable.
-- Absence of evidence is not presented as evidence that an event did not occur.
-- Consequential findings require human approval.
-- CivicLedger is an independent initiative and does not claim government endorsement.
-- The product does not make automated legal determinations.
-
 ## Revenue priorities
 
 1. **AccessForge** — WCAG compliance is legally required for government and education. Closest to revenue.
 2. **PermitSignal** — Contractors pay for structured permit/bid alerts. Revenue-first design.
 3. **FairProcess** — Civic moonshot. Needs a pilot partner to move forward.
 
-## Integration contracts
+## Development
 
-### FairProcess → Ruthless Problem Solver
-
-[`contracts/fairprocess-ruth.ts`](contracts/fairprocess-ruth.ts) defines the
-shared types and transformation function for converting FairProcess integrity
-report findings into Ruth problem solver inputs.
-
-**Flow:**
-
-1. FairProcess audits a code-enforcement case and generates an `IntegrityReport`
-2. The `fairProcessReportToCivicProblem()` function transforms findings into a
-   `CivicProblemInput` with evidence-linked root causes
-3. Ruth ingests the problem and generates solutions, execution plans, and monitoring
-4. Each root cause carries a `CivicEvidenceLink` back to the FairProcess source document
-
-**Principles enforced by the contract:**
-
-- Every root cause links to FairProcess evidence (document hash + page reference)
-- "Not located" findings are process gaps, not proof of misconduct
-- Human approval required before consequential automation
-- Priority and impact scores derive from finding severity, not AI guessing
+```bash
+npm install
+npm run build   # TypeScript → dist/
+npm test        # Build + run 14 tests
+```
 
 ## License
 
-No license is granted yet. A licensing decision will be recorded before external reuse or distribution.
+MIT
